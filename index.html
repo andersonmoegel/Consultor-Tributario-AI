@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultor Tributário AI | Especialista em Reforma</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        * { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        
+        body { 
+            background: radial-gradient(circle at top right, #f1f5f9, #e2e8f0);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Estilização Markdown (Tabelas e Listas) */
+        .prose table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.85rem; background: white; border-radius: 8px; overflow: hidden; }
+        .prose th, .prose td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+        .prose th { background-color: #f8fafc; font-weight: 700; color: #334155; }
+        .prose strong { font-weight: 700; color: #1e293b; }
+        .user-message .prose strong { color: #fff; }
+        .prose ul { list-style-type: disc; padding-left: 20px; margin: 10px 0; }
+
+        /* Bubbles */
+        .message-bubble { 
+            max-width: 85%; 
+            margin-bottom: 1.5rem; 
+            animation: slideUp 0.3s ease-out; 
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message { 
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
+            color: white; 
+            border-radius: 20px 20px 4px 20px; 
+            margin-left: auto;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+
+        .assistant-message { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 20px 20px 20px 4px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        /* Typing Dot Animation */
+        .dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: pulse 1.4s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        /* Custom Scrollbar */
+        #chat-box::-webkit-scrollbar { width: 5px; }
+        #chat-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex flex-col">
+
+    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-2xl z-20">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-blue-600 rounded-lg shadow-inner">
+                <i class="fas fa-gavel text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-bold tracking-tight leading-none">Consultor Tributário AI</h1>
+                <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Inteligência Legislativa</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex flex-col items-end mr-4">
+                <span class="text-[10px] text-slate-400 uppercase">Status do Sistema</span>
+                <span class="text-xs text-emerald-400 flex items-center gap-1">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Conectado à Web
+                </span>
+            </div>
+            <button onclick="limparConversa()" class="bg-slate-800 hover:bg-slate-700 p-2.5 rounded-full transition-all text-slate-300">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 max-w-[1400px] mx-auto w-full overflow-hidden p-4 md:p-6 gap-6">
+        
+        <aside class="hidden lg:flex w-72 flex-col gap-4">
+            <div class="bg-white/80 backdrop-blur p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-wider">Atalhos de Consulta</h3>
+                <div class="space-y-2">
+                    <button onclick="setPrompt('Qual a alíquota estimada do IBS e CBS?')" class="w-full text-left text-xs p-3 rounded-xl hover:bg-blue-50 border border-slate-100 transition-all text-slate-600 hover:text-blue-700 flex items-center gap-2">
+                        <i class="fas fa-percent text-blue-400"></i> Alíquotas IBS/CBS
+                    </button>
+                    <button onclick="setPrompt('Como funciona a transição para o novo sistema?')" class="w-full text-left text-xs p-3 rounded-xl hover:bg-blue-50 border border-slate-100 transition-all text-slate-600 hover:text-blue-700 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt text-blue-400"></i> Cronograma de Transição
+                    </button>
+                    <button onclick="setPrompt('O que muda para o Simples Nacional?')" class="w-full text-left text-xs p-3 rounded-xl hover:bg-blue-50 border border-slate-100 transition-all text-slate-600 hover:text-blue-700 flex items-center gap-2">
+                        <i class="fas fa-store text-blue-400"></i> Simples Nacional
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-auto p-4 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-200">
+                <p class="text-xs font-bold opacity-80 mb-1">Aviso Legal</p>
+                <p class="text-[10px] leading-relaxed opacity-90">Esta IA utiliza dados da web em tempo real. Sempre valide as informações na legislação oficial (DOU).</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-white/40 backdrop-blur-sm rounded-3xl border border-white shadow-xl overflow-hidden">
+            
+            <div id="chat-box" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
+                <div class="message-bubble assistant-message p-5">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 mb-1">Consultor AI</p>
+                            <div class="prose prose-sm text-slate-600">
+                                Olá! Sou seu assistente especializado na **Reforma Tributária Brasileira**. Estou conectado à internet para trazer alíquotas e prazos atualizados da **EC 132/2023**. 
+                                <br><br>Como posso ajudar em sua análise hoje?
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="typing" class="hidden px-8 py-4">
+                <div class="flex items-center gap-2 text-slate-400 text-xs font-medium">
+                    <div class="flex gap-1">
+                        <div class="dot"></div>
+                        <div class="dot" style="animation-delay: 0.2s"></div>
+                        <div class="dot" style="animation-delay: 0.4s"></div>
+                    </div>
+                    <span>Consultando bases governamentais...</span>
+                </div>
+            </div>
+
+            <div class="p-4 md:p-6 bg-white/80 border-t border-slate-100">
+                <div class="relative flex items-end gap-3 max-w-4xl mx-auto bg-slate-100 rounded-2xl p-2 border border-slate-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                    <textarea id="user-input" 
+                              rows="1" 
+                              placeholder="Pergunte sobre IBS, CBS, transição..."
+                              class="w-full p-3 bg-transparent border-none focus:ring-0 text-slate-700 text-sm md:text-base resize-none max-h-40 outline-none"></textarea>
+                    
+                    <button onclick="enviar()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-xl flex items-center justify-center transition-all active:scale-90 shadow-lg shadow-blue-200">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="text-center mt-3">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Pressione Enter para enviar | Shift+Enter para quebrar linha</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const typingIndicator = document.getElementById('typing');
+        let historico = [];
+
+        // Configuração do Marked (Markdown)
+        marked.setOptions({ gfm: true, breaks: true });
+
+        // Ajuste automático da altura do textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Enviar com Enter (e Shift+Enter para pular linha)
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviar();
+            }
+        });
+
+        function addMessage(role, text, fonte = '') {
+            const div = document.createElement('div');
+            div.className = `message-bubble ${role === 'user' ? 'user-message' : 'assistant-message'} p-5`;
+            
+            const htmlContent = marked.parse(text);
+
+            div.innerHTML = `
+                <div class="flex gap-4">
+                    <div class="flex-1 overflow-hidden">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-tighter opacity-60">
+                                ${role === 'user' ? 'Solicitante' : 'Parecer Técnico'}
+                            </span>
+                        </div>
+                        <div class="prose prose-sm max-w-none text-inherit">
+                            ${htmlContent}
+                        </div>
+                        ${fonte ? `
+                            <div class="mt-4 pt-3 border-t border-black/5 text-[10px] flex items-center gap-2 opacity-70 italic">
+                                <i class="fas fa-search"></i> <strong>Fonte:</strong> ${fonte}
+                            </div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            chatBox.appendChild(div);
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+        }
+
+        async function enviar() {
+            const pergunta = userInput.value.trim();
+            if (!pergunta) return;
+
+            addMessage('user', pergunta);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            typingIndicator.classList.remove('hidden');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/perguntar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pergunta, historico })
+                });
+
+                const data = await response.json();
+                typingIndicator.classList.add('hidden');
+                addMessage('assistant', data.resposta, data.fonte);
+                
+                historico.push({ role: 'user', content: pergunta }, { role: 'assistant', content: data.resposta });
+            } catch (error) {
+                typingIndicator.classList.add('hidden');
+                addMessage('assistant', '⚠️ **Erro de Conexão.** O servidor local (Python) não respondeu. Certifique-se de que o backend está rodando na porta 8000.');
+            }
+        }
+
+        function limparConversa() {
+            if (confirm('Deseja resetar a consulta atual?')) {
+                historico = [];
+                chatBox.innerHTML = '';
+                addMessage('assistant', 'Consultoria reiniciada. Em que posso ser útil?');
+            }
+        }
+
+        function setPrompt(text) {
+            userInput.value = text;
+            userInput.focus();
+            userInput.dispatchEvent(new Event('input')); // Ajusta altura
+        }
+    </script>
+</body>
+</html>
