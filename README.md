@@ -1,5 +1,13 @@
 # 🧾 Consultor Tributário AI
 
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwindcss&logoColor=white)
+![Groq](https://img.shields.io/badge/LLM-Groq_API-F55036?style=flat)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 <img src="assets/screenshot.png" width="900"/>
 
 **Agente inteligente para análise da Reforma Tributária (EC 132/2023) com dados atualizados da web**
@@ -10,47 +18,42 @@
 
 Este projeto é um **agente de IA fullstack** composto por:
 
-* **Frontend (HTML + Tailwind + JS)** → Interface estilo chat (semelhante ao ChatGPT)
-* **Backend (FastAPI + Python)** → Orquestra IA + busca web
-* **LLM via Groq API** → Respostas rápidas com modelo `llama-3.3-70b-versatile`
-* **Busca em tempo real (DuckDuckGo)** → Atualização com dados recentes
+- **Frontend (HTML + Tailwind + JS)** → Interface estilo chat (semelhante ao ChatGPT)
+- **Backend (FastAPI + Python)** → Orquestra IA + busca web
+- **LLM via Groq API** → Respostas rápidas com modelo `llama-3.3-70b-versatile`
+- **Busca em tempo real (DuckDuckGo)** → Atualização com dados recentes
 
 O sistema é projetado para responder perguntas sobre a **Reforma Tributária Brasileira**, com foco em:
 
-* IBS / CBS
-* Transição (2026–2033)
-* Impactos fiscais
-* Simples Nacional
+- IBS / CBS
+- Transição (2026–2033)
+- Impactos fiscais
+- Simples Nacional
 
 ---
 
-## ⚠️ IMPORTANTE — Uso da API
+## 🔑 Configuração da API (Groq)
 
-O código atualmente contém uma **chave de API pública/limitada**:
-
-```python
-GROQ_API_KEY = "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"
-```
-
-### 🚨 Limitações
-
-* Essa chave é **gratuita e limitada (~1000 requisições)**
-* Pode parar de funcionar a qualquer momento
-* Não deve ser usada em produção
-
----
-
-## ✅ Recomendação
-
-**Você DEVE usar sua própria API Key da Groq:**
-
-1. Acesse: [https://console.groq.com/](https://console.groq.com/)
-2. Gere sua chave
-3. Substitua no código:
+Este projeto usa a API da Groq para o LLM. A chave de API **nunca** deve ficar exposta no código ou no README — configure-a sempre como variável de ambiente:
 
 ```python
-GROQ_API_KEY = "sua_chave_aqui"
+import os
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 ```
+
+Crie um arquivo `.env` na raiz do projeto (e garanta que ele está no `.gitignore`):
+
+```
+GROQ_API_KEY=sua_chave_aqui
+```
+
+Gere sua chave gratuita em [console.groq.com](https://console.groq.com/).
+
+### 🚨 Limitações da camada gratuita
+
+- Cota de requisições limitada
+- Pode variar conforme a política da Groq
+- Não recomendada para uso em produção sem monitoramento de uso
 
 ---
 
@@ -59,14 +62,14 @@ GROQ_API_KEY = "sua_chave_aqui"
 ```
 Frontend (index.html)
         ↓
-Fetch API (HTTP)
+  Fetch API (HTTP)
         ↓
-FastAPI (main.py)
+  FastAPI (main.py)
         ↓
-├── Busca Web (DuckDuckGo)
-└── LLM (Groq API)
+  ├── Busca Web (DuckDuckGo)
+  └── LLM (Groq API)
         ↓
-Resposta estruturada
+  Resposta estruturada
 ```
 
 ---
@@ -74,69 +77,44 @@ Resposta estruturada
 ## 🚀 Como Rodar Localmente
 
 ### 1. Clone o projeto
-
-```bash
+```
 git clone https://github.com/seu-usuario/consultor-tributario-ai.git
 cd consultor-tributario-ai
 ```
 
----
-
 ### 2. Crie ambiente virtual
-
-```bash
+```
 python -m venv venv
 ```
 
 Ativar:
 
 **Windows**
-
-```bash
+```
 venv\Scripts\activate
 ```
 
 **Linux/Mac**
-
-```bash
+```
 source venv/bin/activate
 ```
 
----
-
 ### 3. Instale dependências
-
-```bash
+```
 pip install fastapi uvicorn httpx groq duckduckgo_search
 ```
 
----
-
 ### 4. Execute o backend
-
-```bash
+```
 python main.py
 ```
 
-Servidor rodando em:
-
-```
-http://127.0.0.1:8000
-```
-
----
+Servidor rodando em: `http://127.0.0.1:8000`
 
 ### 5. Execute o frontend
 
-Abra o arquivo:
-
+Abra o arquivo `index.html` ou use um servidor local:
 ```
-index.html
-```
-
-ou use um servidor local:
-
-```bash
 python -m http.server 5500
 ```
 
@@ -144,84 +122,44 @@ python -m http.server 5500
 
 ## 🔐 Segurança (CRÍTICO)
 
-O código foi propositalmente escrito de forma **não ideal para produção**, pois foi utilizado em:
-
-> ambiente corporativo restrito, com proxy interno, inspeção SSL e validação desabilitada
+O código foi propositalmente escrito de forma não ideal para produção, pois foi utilizado em ambiente corporativo restrito, com proxy interno, inspeção SSL e validação desabilitada.
 
 ### ⚠️ Problemas atuais
 
-#### 1. SSL desabilitado
-
+1. **SSL desabilitado**
 ```python
 httpx.Client(verify=False)
 ```
-
-#### 2. Avisos ignorados
-
+2. **Avisos ignorados**
 ```python
 urllib3.disable_warnings()
 ```
-
-#### 3. CORS aberto
-
+3. **CORS aberto**
 ```python
 allow_origins=["*"]
 ```
 
----
+### ✅ Como corrigir para produção
 
-## ✅ Como corrigir para produção
-
-### ✔️ 1. Ativar verificação SSL
-
+✔️ 1. Ativar verificação SSL
 ```python
 httpx.Client(timeout=45.0)
 ```
-
----
-
-### ✔️ 2. Remover:
-
+✔️ 2. Remover:
 ```python
 urllib3.disable_warnings()
 ```
-
----
-
-### ✔️ 3. Restringir CORS
-
+✔️ 3. Restringir CORS
 ```python
 allow_origins=["http://localhost:5500"]
 ```
-
 ou domínio real:
-
 ```python
 allow_origins=["https://seusite.com"]
 ```
+✔️ 4. Usar variável de ambiente (OBRIGATÓRIO) — já aplicado na seção de configuração acima.
 
----
-
-### ✔️ 4. Usar variável de ambiente (OBRIGATÓRIO)
-
-```python
-import os
-
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-```
-
-Criar `.env`:
-
-```
-GROQ_API_KEY=sua_chave_aqui
-```
-
----
-
-### ✔️ 5. Nunca commitar chave no Git
-
-Adicione ao `.gitignore`:
-
+✔️ 5. Nunca commitar a chave no Git — adicione ao `.gitignore`:
 ```
 .env
 ```
@@ -230,47 +168,42 @@ Adicione ao `.gitignore`:
 
 ## 🧩 Funcionalidades
 
-* ✅ Interface estilo ChatGPT
-* ✅ Renderização Markdown
-* ✅ Histórico de conversa (limitado)
-* ✅ Busca web em tempo real
-* ✅ Respostas jurídicas contextualizadas
-* ✅ Baixa temperatura (evita alucinação)
+✅ Interface estilo ChatGPT
+✅ Renderização Markdown
+✅ Histórico de conversa (limitado)
+✅ Busca web em tempo real
+✅ Respostas jurídicas contextualizadas
+✅ Baixa temperatura (evita alucinação)
 
 ---
 
 ## 📉 Limitações Técnicas
 
-* Sem cache → custo maior de API
-* Sem autenticação
-* Sem rate limit
-* Sem persistência de dados
-* Contexto limitado (últimas 4 mensagens)
+- Sem cache → custo maior de API
+- Sem autenticação
+- Sem rate limit
+- Sem persistência de dados
+- Contexto limitado (últimas 4 mensagens)
 
 ---
 
 ## 🔧 Melhorias Recomendadas
 
-Se quiser evoluir isso aqui, vá nessa linha:
+**Backend**
+- Redis (cache de respostas)
+- Rate limiting (slowapi)
+- Logging estruturado
+- RAG com PDFs jurídicos
 
-### Backend
+**Frontend**
+- Streaming de resposta (SSE/WebSocket)
+- Upload de documentos
+- Persistência local (IndexedDB)
 
-* Redis (cache de respostas)
-* Rate limiting (slowapi)
-* Logging estruturado
-* RAG com PDFs jurídicos
-
-### Frontend
-
-* Streaming de resposta (SSE/WebSocket)
-* Upload de documentos
-* Persistência local (IndexedDB)
-
-### Infra
-
-* Docker
-* Deploy (Railway / Fly.io / AWS)
-* HTTPS com proxy reverso (NGINX)
+**Infra**
+- Docker
+- Deploy (Railway / Fly.io / AWS)
+- HTTPS com proxy reverso (NGINX)
 
 ---
 
@@ -278,9 +211,9 @@ Se quiser evoluir isso aqui, vá nessa linha:
 
 Este sistema:
 
-* Não substitui advogado ou contador
-* Pode conter interpretações incorretas
-* Deve ser validado com legislação oficial (DOU, Receita Federal, etc.)
+- Não substitui advogado ou contador
+- Pode conter interpretações incorretas
+- Deve ser validado com legislação oficial (DOU, Receita Federal, etc.)
 
 ---
 
@@ -288,11 +221,6 @@ Este sistema:
 
 MIT License
 
----
-
 ## 👨‍💻 Autor
 
-Projeto desenvolvido para fins educacionais e experimentação com IA aplicada ao Direito Tributário.
-
-
-Só dizer.
+Projeto desenvolvido por Anderson Moegel para fins educacionais e experimentação com IA aplicada ao Direito Tributário.
